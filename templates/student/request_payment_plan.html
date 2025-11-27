@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Payment Plan - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary-blue: #1a4b8c; --accent-blue: #4a90e2; --white: #ffffff; --light-gray: #f5f5f5; --text-dark: #333333; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
+        body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; }
+        .header { background-color: var(--primary-blue); color: var(--white); padding: 20px; text-align: center; }
+        .container { max-width: 600px; margin: 20px auto; padding: 0 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background: #2c6cb0; }
+        .card { background: var(--white); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { color: var(--primary-blue); margin-bottom: 20px; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 2px solid var(--light-blue); }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark); }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
+        .form-control:focus { border-color: var(--accent-blue); outline: none; box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); }
+        .btn { padding: 12px 25px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+        .btn-primary { background-color: var(--accent-blue); color: white; }
+        .btn-primary:hover { background-color: #2c6cb0; }
+        .btn-secondary { background-color: var(--light-gray); color: var(--text-dark); }
+        .btn-secondary:hover { background-color: #e0e0e0; }
+        .info-box { background: var(--light-blue); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .info-box h4 { color: var(--primary-blue); margin-bottom: 10px; }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .card { padding: 20px; }
+            .info-box { padding: 12px; }
+            .form-group { margin-bottom: 15px; }
+            .form-control { padding: 10px; font-size: 0.9rem; }
+            .btn { padding: 10px 20px; font-size: 0.9rem; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 0.9rem; }
+            .back-link { padding: 8px 15px; font-size: 0.9rem; }
+            .section-title { font-size: 1.3rem; }
+            .info-box { padding: 10px; }
+            .form-control { padding: 8px; font-size: 0.8rem; }
+            .btn { padding: 8px 15px; font-size: 0.8rem; width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZRP Zimuto Camp Primary School</h1>
+        <p>Request Payment Plan</p>
+    </div>
+
+    <div class="container">
+        <a href="{% url 'student_fee_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Fees</a>
+
+        <div class="card">
+            <h2 class="section-title">Request a Payment Plan</h2>
+
+            <div class="info-box">
+                <h4><i class="fas fa-info-circle"></i> Payment Plan Information</h4>
+                <p>If you're unable to pay your fees in full, you can request a payment plan to spread the payments over several installments. The school administration will review your request and contact you with approval.</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="padding: 10px; margin-bottom: 15px; border-radius: 5px; {% if message.tags == 'error' %}background: #f8d7da; color: #721c24;{% else %}background: #d4edda; color: #155724;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label">Total Amount to Pay ($)</label>
+                    <input type="number" name="total_amount" class="form-control" step="0.01" min="0" required placeholder="Enter the total amount you want to pay in installments">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Number of Installments</label>
+                    <select name="installments" class="form-control" required>
+                        <option value="">Select number of installments</option>
+                        <option value="2">2 installments</option>
+                        <option value="3">3 installments</option>
+                        <option value="4">4 installments</option>
+                        <option value="6">6 installments</option>
+                        <option value="12">12 installments</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Request
+                    </button>
+                    <a href="{% url 'student_fee_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

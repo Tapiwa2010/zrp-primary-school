@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-blue: #1a4b8c;
+            --secondary-blue: #2c6cb0;
+            --accent-blue: #4a90e2;
+            --light-blue: #e6f2ff;
+            --dark-blue: #0a2a53;
+            --gold: #d4af37;
+            --light-gold: #f7e8c4;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --text-dark: #333333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --sidebar-width: 250px;
+            --sidebar-collapsed: 70px;
+            --topbar-height: 70px;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            color: var(--text-dark);
+            line-height: 1.6;
+            background-color: var(--light-gray);
+            overflow-x: hidden;
+        }
+        
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, var(--dark-blue), var(--primary-blue));
+            color: var(--white);
+            transition: var(--transition);
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: var(--topbar-height);
+        }
+        
+        .school-logo {
+            height: 40px;
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed .school-logo {
+            opacity: 0;
+            width: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .menu-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            color: var(--light-gold);
+        }
+        
+        .menu-text {
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed .menu-text {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .menu-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-dropdown.open {
+            max-height: 300px;
+        }
+        
+        .dropdown-item {
+            padding: 10px 20px 10px 50px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Topbar Styles */
+        .topbar {
+            height: var(--topbar-height);
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: var(--sidebar-width);
+            z-index: 99;
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed ~ .main-content .topbar {
+            left: var(--sidebar-collapsed);
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background-color: var(--light-blue);
+            color: var(--secondary-blue);
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            cursor: pointer;
+            margin-right: 20px;
+            transition: var(--transition);
+        }
+        
+        .menu-toggle:hover {
+            color: var(--accent-blue);
+            transform: scale(1.1);
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .topbar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .topbar-item:hover {
+            background-color: var(--light-blue);
+        }
+        
+        .notification-badge {
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .zrp-logo {
+            height: 40px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+            padding-top: var(--topbar-height);
+        }
+        
+        .sidebar.collapsed ~ .main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
+        
+        .content-area {
+            padding: 30px;
+        }
+        
+        /* Dashboard Sections */
+        .dashboard-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .dashboard-section.active {
+            display: block;
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        
+        .welcome-banner h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .welcome-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-blue);
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            animation: fadeInUp 0.5s ease;
+            border-top: 4px solid var(--accent-blue);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card.gold {
+            border-top-color: var(--gold);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-blue);
+            font-size: 1.5rem;
+        }
+        
+        .card.gold .card-icon {
+            background-color: var(--light-gold);
+            color: var(--gold);
+        }
+        
+        .card-title {
+            color: var(--primary-blue);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .card-content {
+            color: var(--text-dark);
+        }
+        
+        /* Results Table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .results-table th {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .results-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .results-table tr:hover {
+            background-color: var(--light-blue);
+        }
+        
+        .grade {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .grade-a { background-color: #d4edda; color: #155724; }
+        .grade-b { background-color: #fff3cd; color: #856404; }
+        .grade-c { background-color: #f8d7da; color: #721c24; }
+        
+        /* Fee Status */
+        .fee-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 10px;
+            background-color: var(--light-gray);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+        
+        .progress.warning {
+            background-color: var(--warning);
+        }
+        
+        .progress.danger {
+            background-color: var(--danger);
+        }
+        
+        /* Announcements */
+        .announcement {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--accent-blue);
+            animation: fadeInLeft 0.5s ease;
+        }
+        
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .announcement-title {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+        
+        .announcement-date {
+            color: var(--secondary-blue);
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .topbar {
+                left: 0;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 0 10px;
+            }
+            .topbar-left {
+                gap: 10px;
+            }
+            .top-nav {
+                display: none;
+            }
+            .page-title {
+                font-size: 1.2rem;
+            }
+            .topbar-right {
+                gap: 10px;
+            }
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            .zrp-logo {
+                height: 35px;
+            }
+            .content-area {
+                padding: 20px 10px;
+            }
+            .welcome-banner {
+                padding: 20px;
+            }
+            .welcome-banner h1 {
+                font-size: 1.5rem;
+            }
+            .welcome-banner p {
+                font-size: 1rem;
+            }
+            .card {
+                padding: 20px;
+            }
+            .card-title {
+                font-size: 1.1rem;
+            }
+            .results-table th, .results-table td {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="{% static 'images/cort.png' %}" alt="School Logo" class="school-logo">
+            </div>
+            
+            <ul class="sidebar-menu">
+                 <li class="menu-item active">
+                     <a href="{% url 'student_dashboard' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-home"></i>
+                         </div>
+                         <span class="menu-text">Dashboard</span>
+                     </a>
+                 </li>
+
+                 <li class="menu-item">
+                     <a href="{% url 'student_academics' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-book"></i>
+                         </div>
+                         <span class="menu-text">Academic Results</span>
+                     </a>
+                 </li>
+
+                 <li class="menu-item">
+                     <a href="{% url 'student_homework' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-tasks"></i>
+                         </div>
+                         <span class="menu-text">Homework & Materials</span>
+                     </a>
+                 </li>
+
+                 <li class="menu-item">
+                     <a href="{% url 'student_attendance' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-calendar-check"></i>
+                         </div>
+                         <span class="menu-text">Attendance</span>
+                     </a>
+                 </li>
+
+                 <li class="menu-item">
+                     <a href="{% url 'fees:student_fee_dashboard' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-money-bill-wave"></i>
+                         </div>
+                         <span class="menu-text">Fee Management</span>
+                     </a>
+                 </li>
+
+                 <li class="menu-item">
+                     <a href="{% url 'student_communication' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-comments"></i>
+                         </div>
+                         <span class="menu-text">Communication</span>
+                     </a>
+                 </li>
+
+                 <li class="menu-item">
+                     <a href="{% url 'student_class_info' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-users"></i>
+                         </div>
+                         <span class="menu-text">Class Information</span>
+                     </a>
+                 </li>
+
+                 <li class="menu-item">
+                     <a href="{% url 'student_profile' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                         <div class="menu-icon">
+                             <i class="fas fa-user-cog"></i>
+                         </div>
+                         <span class="menu-text">Profile & Settings</span>
+                     </a>
+                 </li>
+             </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="page-title">Student Dashboard</h2>
+                    <nav class="top-nav">
+                        <a href="{% url 'student_academics' %}" class="nav-link">Results</a>
+                        <a href="{% url 'student_homework' %}" class="nav-link">Homework</a>
+                        <a href="{% url 'fees:student_fee_dashboard' %}" class="nav-link">Fees</a>
+                    </nav>
+                </div>
+                
+                <div class="topbar-right">
+                    <div class="topbar-item notification-item">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+
+                    <div class="topbar-item user-profile">
+                        <div class="user-avatar">{{ user.first_name.0 }}{{ user.last_name.0 }}</div>
+                        <div class="user-details">
+                            <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+                            <div class="user-role">
+                                {% if student %}
+                                    {{ student.grade.name }}{% if student.class_room %} {{ student.class_room.name }}{% endif %}
+                                {% else %}
+                                    Student
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="topbar-item">
+                        <a href="{% url 'logout' %}" style="color: var(--primary-blue); text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+
+                    <img src="{% static 'images/pol.jpg' %}" alt="ZRP Logo" class="zrp-logo">
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="dashboard-section active">
+                    <div class="welcome-banner">
+                        <h1>Welcome back, {{ user.first_name }}!</h1>
+                        <p>Here's your academic summary for this term. Keep up the good work!</p>
+                    </div>
+                    
+                    <h2 class="section-title">Quick Overview</h2>
+                    
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h3 class="card-title">Academic Performance</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Your overall average: <strong>82%</strong></p>
+                                <p>Class rank: <strong>5th out of 32 students</strong></p>
+                                <p>Improvement from last term: <strong style="color: var(--success);">+5%</strong></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <h3 class="card-title">Attendance</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Present: <strong>45 days</strong></p>
+                                <p>Absent: <strong>2 days</strong></p>
+                                <p>Attendance Rate: <strong>95.7%</strong></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card gold">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-money-bill"></i>
+                                </div>
+                                <h3 class="card-title">Fee Status</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Total Fees: <strong>$250</strong></p>
+                                <p>Paid: <strong>$200</strong></p>
+                                <p>Balance: <strong>$50</strong></p>
+                                <div class="fee-status">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 80%"></div>
+                                    </div>
+                                    <span>80% Paid</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <h3 class="card-title">Pending Homework</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Mathematics: <strong>Due Tomorrow</strong></p>
+                                <p>English: <strong>Due in 3 days</strong></p>
+                                <p>Science: <strong>Due next week</strong></p>
+                                <p><a href="#" style="color: var(--accent-blue);">View all homework →</a></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="section-title">Recent Announcements</h2>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">Sports Day Preparation</h3>
+                            <span class="announcement-date">October 15, 2023</span>
+                        </div>
+                        <p>All students are reminded to bring their sports attire tomorrow for practice. The inter-school competition is next week.</p>
+                    </div>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">Parent-Teacher Meeting</h3>
+                            <span class="announcement-date">October 12, 2023</span>
+                        </div>
+                        <p>The next parent-teacher meeting is scheduled for October 25th. Please inform your parents to attend.</p>
+                    </div>
+                </div>
+
+                <!-- Academics Section -->
+                <div id="academics" class="dashboard-section">
+                    <h2 class="section-title">Academic Results</h2>
+                    
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Term 1</th>
+                                <th>Term 2</th>
+                                <th>Term 3</th>
+                                <th>Average</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mathematics</td>
+                                <td>85%</td>
+                                <td>88%</td>
+                                <td>90%</td>
+                                <td>87.7%</td>
+                                <td><span class="grade grade-a">A</span></td>
+                            </tr>
+                            <tr>
+                                <td>English</td>
+                                <td>78%</td>
+                                <td>82%</td>
+                                <td>85%</td>
+                                <td>81.7%</td>
+                                <td><span class="grade grade-b">B</span></td>
+                            </tr>
+                            <tr>
+                                <td>Science</td>
+                                <td>80%</td>
+                                <td>85%</td>
+                                <td>88%</td>
+                                <td>84.3%</td>
+                                <td><span class="grade grade-a">A</span></td>
+                            </tr>
+                            <tr>
+                                <td>Shona</td>
+                                <td>75%</td>
+                                <td>80%</td>
+                                <td>82%</td>
+                                <td>79%</td>
+                                <td><span class="grade grade-b">B</span></td>
+                            </tr>
+                            <tr>
+                                <td>Social Studies</td>
+                                <td>82%</td>
+                                <td>85%</td>
+                                <td>87%</td>
+                                <td>84.7%</td>
+                                <td><span class="grade grade-a">A</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add other sections similarly -->
+                <div id="homework" class="dashboard-section">
+                    <h2 class="section-title">Homework & Learning Materials</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Homework functionality would display assignments with due dates, submission status, and downloadable materials.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="attendance" class="dashboard-section">
+                    <h2 class="section-title">Attendance Record</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Attendance functionality would display a calendar view with present/absent markers and statistics.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="fees" class="dashboard-section">
+                    <h2 class="section-title">Fee Management</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Fee management would show payment history, current balance, and payment options (EcoCash, bank transfer, cash).</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="communication" class="dashboard-section">
+                    <h2 class="section-title">Communication</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Communication section would show messages from teachers and allow sending messages to teachers.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="class-info" class="dashboard-section">
+                    <h2 class="section-title">Class Information</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Class information would show teacher details, class timetable, and subject information.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="profile" class="dashboard-section">
+                    <h2 class="section-title">Profile & Settings</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Profile section would allow updating student and parent information, changing passwords, etc.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+
+            // Toggle sidebar collapse/expand
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+
+                // Update hamburger icon
+                if (sidebar.classList.contains('collapsed')) {
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    menuToggle.innerHTML = '<i class="fas fa-times"></i>';
+                }
+            });
+
+            // Animate progress bars on page load
+            const progressBars = document.querySelectorAll('.progress');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+
+            // Simulate loading animation for cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Mobile menu handling
+            function handleMobileMenu() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    sidebar.classList.remove('mobile-open');
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+            }
+
+            // Initial call
+            handleMobileMenu();
+
+            // Update on resize
+            window.addEventListener('resize', handleMobileMenu);
+        });
+    </script>
+</body>
+</html>

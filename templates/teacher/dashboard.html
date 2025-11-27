@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-blue: #1a4b8c;
+            --secondary-blue: #2c6cb0;
+            --accent-blue: #4a90e2;
+            --light-blue: #e6f2ff;
+            --dark-blue: #0a2a53;
+            --gold: #d4af37;
+            --light-gold: #f7e8c4;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --text-dark: #333333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --sidebar-width: 250px;
+            --sidebar-collapsed: 70px;
+            --topbar-height: 70px;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            color: var(--text-dark);
+            line-height: 1.6;
+            background-color: var(--light-gray);
+            overflow-x: hidden;
+        }
+        
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, var(--dark-blue), var(--primary-blue));
+            color: var(--white);
+            transition: var(--transition);
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: var(--topbar-height);
+        }
+        
+        .school-logo {
+            height: 40px;
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed .school-logo {
+            opacity: 0;
+            width: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .menu-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            color: var(--light-gold);
+        }
+        
+        .menu-text {
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed .menu-text {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .menu-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-dropdown.open {
+            max-height: 300px;
+        }
+        
+        .dropdown-item {
+            padding: 10px 20px 10px 50px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Topbar Styles */
+        .topbar {
+            height: var(--topbar-height);
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: var(--sidebar-width);
+            z-index: 99;
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed ~ .main-content .topbar {
+            left: var(--sidebar-collapsed);
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background-color: var(--light-blue);
+            color: var(--secondary-blue);
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            cursor: pointer;
+            margin-right: 20px;
+            transition: var(--transition);
+        }
+        
+        .menu-toggle:hover {
+            color: var(--accent-blue);
+            transform: scale(1.1);
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .topbar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .topbar-item:hover {
+            background-color: var(--light-blue);
+        }
+        
+        .notification-badge {
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .zrp-logo {
+            height: 40px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+            padding-top: var(--topbar-height);
+        }
+        
+        .sidebar.collapsed ~ .main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
+        
+        .content-area {
+            padding: 30px;
+        }
+        
+        /* Dashboard Sections */
+        .dashboard-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .dashboard-section.active {
+            display: block;
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        
+        .welcome-banner h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .welcome-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-blue);
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            animation: fadeInUp 0.5s ease;
+            border-top: 4px solid var(--accent-blue);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card.gold {
+            border-top-color: var(--gold);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-blue);
+            font-size: 1.5rem;
+        }
+        
+        .card.gold .card-icon {
+            background-color: var(--light-gold);
+            color: var(--gold);
+        }
+        
+        .card-title {
+            color: var(--primary-blue);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .card-content {
+            color: var(--text-dark);
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-blue);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-blue);
+            color: white;
+        }
+        
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .data-table th {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--light-blue);
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-blue);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--white);
+            cursor: pointer;
+        }
+        
+        /* Attendance Grid */
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .attendance-item {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .attendance-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .attendance-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+        
+        .present {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .absent {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .late {
+            background-color: var(--warning);
+            color: black;
+        }
+        
+        /* Announcements */
+        .announcement {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--accent-blue);
+            animation: fadeInLeft 0.5s ease;
+        }
+        
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .announcement-title {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+        
+        .announcement-date {
+            color: var(--secondary-blue);
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .topbar {
+                left: 0;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .attendance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 0 10px;
+            }
+            .topbar-left {
+                gap: 5px;
+            }
+            .top-nav {
+                display: none;
+            }
+            .page-title {
+                font-size: 1.1rem;
+            }
+            .topbar-right {
+                gap: 8px;
+            }
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            .zrp-logo {
+                height: 35px;
+            }
+            .content-area {
+                padding: 20px 10px;
+            }
+            .welcome-banner {
+                padding: 20px;
+            }
+            .welcome-banner h1 {
+                font-size: 1.5rem;
+            }
+            .welcome-banner p {
+                font-size: 1rem;
+            }
+            .card {
+                padding: 20px;
+            }
+            .card-title {
+                font-size: 1.1rem;
+            }
+            .data-table th, .data-table td {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+            .attendance-item {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            .attendance-btn {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="{% static 'images/cort.png' %}" alt="School Logo" class="school-logo">
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-section="dashboard">
+                    <div class="menu-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span class="menu-text">Dashboard</span>
+                </li>
+                
+                <li class="menu-item" data-section="students">
+                    <div class="menu-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <span class="menu-text">Student Management</span>
+                </li>
+
+                <li class="menu-item" data-section="add-student">
+                    <div class="menu-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <span class="menu-text">Add Student</span>
+                </li>
+                
+                <li class="menu-item" data-section="results">
+                    <div class="menu-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <span class="menu-text">Results Management</span>
+                </li>
+                
+                <li class="menu-item" data-section="homework">
+                    <div class="menu-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <span class="menu-text">Homework & Materials</span>
+                </li>
+                
+                <li class="menu-item" data-section="attendance">
+                    <div class="menu-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span class="menu-text">Attendance</span>
+                </li>
+                
+                <li class="menu-item" data-section="communication">
+                    <div class="menu-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <span class="menu-text">Communication</span>
+                </li>
+                
+                <li class="menu-item" data-section="announcements">
+                    <div class="menu-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <span class="menu-text">Announcements</span>
+                </li>
+                
+                <li class="menu-item" data-section="profile">
+                    <div class="menu-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <span class="menu-text">Profile & Settings</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="page-title">Teacher Dashboard</h2>
+                    <nav class="top-nav">
+                        <a href="#students" class="nav-link" onclick="showSection('students')">Students</a>
+                        <a href="#results" class="nav-link" onclick="showSection('results')">Results</a>
+                        <a href="#attendance" class="nav-link" onclick="showSection('attendance')">Attendance</a>
+                    </nav>
+                </div>
+                
+                <div class="topbar-right">
+                    <div class="topbar-item notification-item">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+
+                    <div class="topbar-item user-profile">
+                        <div class="user-avatar">{{ teacher.first_name.0 }}{{ teacher.last_name.0 }}</div>
+                        <div class="user-details">
+                            <div class="user-name">{{ teacher.first_name }} {{ teacher.last_name }}</div>
+                            <div class="user-role">Teacher</div>
+                        </div>
+                    </div>
+
+                    <div class="topbar-item">
+                        <a href="{% url 'logout' %}" style="color: var(--primary-blue); text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+
+                    <img src="{% static 'images/pol.jpg' %}" alt="ZRP Logo" class="zrp-logo">
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="dashboard-section active">
+                    <div class="welcome-banner">
+                        <h1>Welcome back, {{ teacher.first_name }} {{ teacher.last_name }}!</h1>
+                        <p>Here's your teaching overview for today. You have {{ students|length }} students under your supervision.</p>
+                    </div>
+                    
+                    <h2 class="section-title">Quick Overview</h2>
+                    
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <h3 class="card-title">Student Overview</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Total Students: <strong>{{ students|length }}</strong></p>
+                                <p>Grades: <strong>{% for grade in grades %}{{ grade.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</strong></p>
+                                <p>Classes: <strong>{% for class in classes %}{{ class.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</strong></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <h3 class="card-title">Pending Tasks</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Homework to mark: <strong>3 assignments</strong></p>
+                                <p>Attendance to submit: <strong>Today</strong></p>
+                                <p>Results to upload: <strong>Mathematics Test</strong></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card gold">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <h3 class="card-title">Notifications</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>New messages: <strong>5</strong></p>
+                                <p>Parent meetings: <strong>2 scheduled</strong></p>
+                                <p>School announcements: <strong>3 new</strong></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h3 class="card-title">Class Performance</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Mathematics Average: <strong>78%</strong></p>
+                                <p>English Average: <strong>82%</strong></p>
+                                <p>Science Average: <strong>75%</strong></p>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="section-title">Recent Announcements</h2>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">Staff Meeting Reminder</h3>
+                            <span class="announcement-date">October 18, 2023</span>
+                        </div>
+                        <p>There will be a staff meeting this Friday at 2:00 PM in the staff room. Please bring your term reports.</p>
+                    </div>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">End of Term Exams Schedule</h3>
+                            <span class="announcement-date">October 15, 2023</span>
+                        </div>
+                        <p>The end of term exams will begin on November 6th. Please ensure all syllabus is covered by October 30th.</p>
+                    </div>
+                </div>
+
+                <!-- Student Management Section -->
+                <div id="students" class="dashboard-section">
+                    <h2 class="section-title">Student Management</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">My Students ({{ students|length }})</h3>
+                        </div>
+                        <div class="card-content">
+                            {% if assigned_classes or assigned_grades %}
+                                <p><strong>Assigned Classes:</strong>
+                                {% for cls in assigned_classes %}{{ cls.grade.name }} {{ cls.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                {% if assigned_grades %} | <strong>Assigned Grades:</strong>
+                                {% for grade in assigned_grades %}{{ grade.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                {% endif %}</p>
+                            {% else %}
+                                <p style="color: #dc3545;"><strong>No classes assigned yet.</strong> Please contact administration to assign classes.</p>
+                            {% endif %}
+
+                            <div style="margin: 20px 0;">
+                                <button class="btn btn-primary" onclick="showSection('add-student')">Add New Student</button>
+                            </div>
+
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Grade</th>
+                                        <th>Class</th>
+                                        <th>Email</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                                        <td>{{ student.grade.name }}</td>
+                                        <td>{{ student.class_room.name|default:"--" }}</td>
+                                        <td>{{ student.user.email }}</td>
+                                        <td>
+                                            <button class="btn btn-secondary">View</button>
+                                            <button class="btn btn-primary">Message</button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5">No students assigned to your classes yet.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Management Section -->
+                <div id="results" class="dashboard-section">
+                    <h2 class="section-title">Results Management</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Upload Results</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Subject</label>
+                                <select class="form-select">
+                                    <option>Mathematics</option>
+                                    <option>English</option>
+                                    <option>Science</option>
+                                    <option>Shona</option>
+                                    <option>Social Studies</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Exam Type</label>
+                                <select class="form-select">
+                                    <option>Beginning of Term Test</option>
+                                    <option>Mid Term Test</option>
+                                    <option>End of Term Exam</option>
+                                    <option>Weekly Test</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Upload Results File (CSV/Excel)</label>
+                                <input type="file" class="form-control">
+                            </div>
+                            
+                            <button class="btn btn-primary">Upload Results</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Uploads</h3>
+                        </div>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Exam Type</th>
+                                        <th>Date Uploaded</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Mathematics</td>
+                                        <td>Mid Term Test</td>
+                                        <td>October 10, 2023</td>
+                                        <td>
+                                            <button class="btn btn-secondary">View</button>
+                                            <button class="btn btn-primary">Edit</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>English</td>
+                                        <td>Weekly Test</td>
+                                        <td>October 5, 2023</td>
+                                        <td>
+                                            <button class="btn btn-secondary">View</button>
+                                            <button class="btn btn-primary">Edit</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Homework Section -->
+                <div id="homework" class="dashboard-section">
+                    <h2 class="section-title">Homework & Learning Materials</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Upload New Homework</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Homework Title</label>
+                                <input type="text" class="form-control" placeholder="Enter homework title">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Subject</label>
+                                <select class="form-select">
+                                    <option>Mathematics</option>
+                                    <option>English</option>
+                                    <option>Science</option>
+                                    <option>Shona</option>
+                                    <option>Social Studies</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Instructions</label>
+                                <textarea class="form-control" rows="3" placeholder="Enter homework instructions"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Due Date</label>
+                                <input type="date" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Attach File</label>
+                                <input type="file" class="form-control">
+                            </div>
+                            
+                            <button class="btn btn-primary">Upload Homework</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Section -->
+                <div id="attendance" class="dashboard-section">
+                    <h2 class="section-title">Attendance Management</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Today's Attendance - October 20, 2023</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="attendance-grid">
+                                <div class="attendance-item">
+                                    <span>Tafadzwa Moyo</span>
+                                    <div class="attendance-actions">
+                                        <button class="attendance-btn present">Present</button>
+                                        <button class="attendance-btn absent">Absent</button>
+                                        <button class="attendance-btn late">Late</button>
+                                    </div>
+                                </div>
+                                <div class="attendance-item">
+                                    <span>Rudo Chiweshe</span>
+                                    <div class="attendance-actions">
+                                        <button class="attendance-btn present">Present</button>
+                                        <button class="attendance-btn absent">Absent</button>
+                                        <button class="attendance-btn late">Late</button>
+                                    </div>
+                                </div>
+                                <div class="attendance-item">
+                                    <span>Takudzwa Ndlovu</span>
+                                    <div class="attendance-actions">
+                                        <button class="attendance-btn present">Present</button>
+                                        <button class="attendance-btn absent">Absent</button>
+                                        <button class="attendance-btn late">Late</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary">Submit Attendance</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Communication Section -->
+                <div id="communication" class="dashboard-section">
+                    <h2 class="section-title">Communication</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Send Message</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Recipient</label>
+                                <select class="form-select">
+                                    <option>All Parents (Grade 6B)</option>
+                                    <option>Individual Parent</option>
+                                    <option>School Administration</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Message Subject</label>
+                                <input type="text" class="form-control" placeholder="Enter message subject">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Message</label>
+                                <textarea class="form-control" rows="5" placeholder="Type your message here"></textarea>
+                            </div>
+                            
+                            <button class="btn btn-primary">Send Message</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Announcements Section -->
+                <div id="announcements" class="dashboard-section">
+                    <h2 class="section-title">School Announcements</h2>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">Staff Development Workshop</h3>
+                            <span class="announcement-date">October 22, 2023</span>
+                        </div>
+                        <p>There will be a staff development workshop on modern teaching methodologies next Saturday from 9 AM to 1 PM. Attendance is mandatory for all teaching staff.</p>
+                    </div>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">Parent-Teacher Meetings</h3>
+                            <span class="announcement-date">October 18, 2023</span>
+                        </div>
+                        <p>The next round of parent-teacher meetings is scheduled for November 3rd. Please prepare progress reports for all your students.</p>
+                    </div>
+                </div>
+
+                <!-- Add Student Section -->
+                <div id="add-student" class="dashboard-section">
+                    <h2 class="section-title">Add New Student</h2>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Register Student</h3>
+                        </div>
+                        <div class="card-content">
+                            <form method="post" action="{% url 'teacher_add_student' %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="first_name" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="last_name" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" name="password" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Grade</label>
+                                    <select name="grade" class="form-select" required>
+                                        {% for grade in assigned_grades %}
+                                        <option value="{{ grade.id }}">{{ grade.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Class</label>
+                                    <select name="class_room" class="form-select">
+                                        <option value="">No Class (ECD)</option>
+                                        {% for cls in assigned_classes %}
+                                        <option value="{{ cls.id }}">{{ cls.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Register Student</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Section -->
+                <div id="profile" class="dashboard-section">
+                    <h2 class="section-title">Profile & Settings</h2>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Account Information</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" value="{{ teacher.first_name }} {{ teacher.last_name }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" value="{{ teacher.email }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Role</label>
+                                <input type="text" class="form-control" value="Teacher" readonly>
+                            </div>
+
+                            <button class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const sections = document.querySelectorAll('.dashboard-section');
+            
+            // Toggle sidebar collapse/expand
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                
+                // Update hamburger icon
+                if (sidebar.classList.contains('collapsed')) {
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    menuToggle.innerHTML = '<i class="fas fa-times"></i>';
+                }
+            });
+            
+            // Menu navigation
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetSection = this.getAttribute('data-section');
+                    
+                    // Update active menu item
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetSection) {
+                            section.classList.add('active');
+                        }
+                    });
+                    
+                    // Update page title
+                    document.querySelector('.page-title').textContent = this.querySelector('.menu-text').textContent;
+                    
+                    // Auto-collapse sidebar on mobile after selection
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('mobile-open');
+                    }
+                });
+            });
+            
+            // Attendance button functionality
+            document.querySelectorAll('.attendance-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const parentItem = this.closest('.attendance-item');
+                    parentItem.querySelectorAll('.attendance-btn').forEach(b => {
+                        b.style.opacity = '0.6';
+                    });
+                    this.style.opacity = '1';
+                });
+            });
+            
+            // Mobile menu handling
+            function handleMobileMenu() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    sidebar.classList.remove('mobile-open');
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+            }
+            
+            // Initial call
+            handleMobileMenu();
+            
+            // Update on resize
+            window.addEventListener('resize', handleMobileMenu);
+        });
+    </script>
+</body>
+</html>

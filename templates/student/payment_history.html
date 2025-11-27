@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary-blue: #1a4b8c; --accent-blue: #4a90e2; --white: #ffffff; --light-gray: #f5f5f5; --text-dark: #333333; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
+        body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; }
+        .header { background-color: var(--primary-blue); color: var(--white); padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background: #2c6cb0; }
+        .card { background: var(--white); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { color: var(--primary-blue); margin-bottom: 20px; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 2px solid var(--light-blue); }
+        .history-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .history-table th { background: var(--primary-blue); color: white; padding: 15px; text-align: left; }
+        .history-table td { padding: 15px; border-bottom: 1px solid var(--light-gray); }
+        .history-table tr:last-child td { border-bottom: none; }
+        .history-table tr:hover { background: var(--light-blue); }
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.failed { background: #f8d7da; color: #721c24; }
+        .download-btn { color: var(--accent-blue); text-decoration: none; padding: 5px 10px; border-radius: 3px; }
+        .download-btn:hover { background: var(--light-blue); }
+        .no-data { text-align: center; padding: 40px; color: var(--text-dark); font-style: italic; }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .card { padding: 20px; }
+            .history-table th, .history-table td { padding: 10px; font-size: 0.9rem; }
+            .download-btn { padding: 4px 8px; font-size: 0.8rem; }
+            .no-data { padding: 30px; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 0.9rem; }
+            .back-link { padding: 8px 15px; font-size: 0.9rem; }
+            .section-title { font-size: 1.3rem; }
+            .history-table th, .history-table td { padding: 8px; font-size: 0.8rem; }
+            .download-btn { padding: 3px 6px; font-size: 0.7rem; }
+            .no-data { padding: 20px; }
+            .no-data i { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZRP Zimuto Camp Primary School</h1>
+        <p>Payment History</p>
+    </div>
+
+    <div class="container">
+        <a href="{% url 'student_fee_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Fees</a>
+
+        <div class="card">
+            <h2 class="section-title">Complete Payment History</h2>
+
+            {% if payments %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Reference</th>
+                        <th>Status</th>
+                        <th>Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M d, Y H:i" }}</td>
+                        <td>${{ payment.amount|floatformat:2 }}</td>
+                        <td>{{ payment.payment_method.get_name_display }}</td>
+                        <td>{{ payment.reference_number|default:"--" }}</td>
+                        <td>
+                            <span class="status
+                                {% if payment.status == 'verified' %}success
+                                {% elif payment.status == 'pending' %}pending
+                                {% elif payment.status == 'failed' %}failed
+                                {% else %}pending{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if payment.receipt %}
+                            <a href="{% url 'download_receipt' payment.receipt.id %}" class="download-btn" target="_blank">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">
+                <i class="fas fa-receipt fa-3x" style="color: var(--light-gray); margin-bottom: 20px;"></i>
+                <p>No payment history available.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

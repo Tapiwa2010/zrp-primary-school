@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Results - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary-blue: #1a4b8c; --accent-blue: #4a90e2; --white: #ffffff; --light-gray: #f5f5f5; --text-dark: #333333; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
+        body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; }
+        .header { background-color: var(--primary-blue); color: var(--white); padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background: #2c6cb0; }
+        .card { background: var(--white); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { color: var(--primary-blue); margin-bottom: 20px; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 2px solid var(--light-blue); }
+        .results-table { width: 100%; border-collapse: collapse; background-color: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .results-table th { background-color: var(--primary-blue); color: white; padding: 15px; text-align: left; }
+        .results-table td { padding: 15px; border-bottom: 1px solid var(--light-gray); }
+        .results-table tr:last-child td { border-bottom: none; }
+        .results-table tr:hover { background-color: var(--light-blue); }
+        .grade { display: inline-block; padding: 5px 10px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; }
+        .grade-a { background-color: #d4edda; color: #155724; }
+        .grade-b { background-color: #fff3cd; color: #856404; }
+        .grade-c { background-color: #f8d7da; color: #721c24; }
+        .student-info { background: var(--white); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .info-item { margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .info-item strong { color: var(--primary-blue); }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .card { padding: 20px; }
+            .results-table th, .results-table td { padding: 10px; font-size: 0.9rem; }
+            .student-info { padding: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 0.9rem; }
+            .back-link { padding: 8px 15px; font-size: 0.9rem; }
+            .section-title { font-size: 1.3rem; }
+            .results-table th, .results-table td { padding: 8px; font-size: 0.8rem; }
+            .info-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZRP Zimuto Camp Primary School</h1>
+        <p>Academic Results</p>
+    </div>
+
+    <div class="container">
+        <a href="{% url 'student_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        <div class="student-info">
+            <h3>Student Information</h3>
+            {% if student %}
+                <div class="info-item">
+                    <strong>Name:</strong>
+                    <span>{{ student.user.first_name }} {{ student.user.last_name }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Grade:</strong>
+                    <span>{{ student.grade.name }}</span>
+                </div>
+                {% if student.class_room %}
+                <div class="info-item">
+                    <strong>Class:</strong>
+                    <span>{{ student.class_room.name }}</span>
+                </div>
+                {% endif %}
+            {% else %}
+                <p>No student profile found.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Term Results</h2>
+            <p>Academic results will be displayed here once the system is fully implemented.</p>
+
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Term 1</th>
+                        <th>Term 2</th>
+                        <th>Term 3</th>
+                        <th>Average</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mathematics</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td><span class="grade grade-a">--</span></td>
+                    </tr>
+                    <tr>
+                        <td>English</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td><span class="grade grade-b">--</span></td>
+                    </tr>
+                    <tr>
+                        <td>Science</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td><span class="grade grade-a">--</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

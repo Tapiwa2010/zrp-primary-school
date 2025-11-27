@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Information - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary-blue: #1a4b8c; --accent-blue: #4a90e2; --white: #ffffff; --light-gray: #f5f5f5; --text-dark: #333333; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
+        body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; }
+        .header { background-color: var(--primary-blue); color: var(--white); padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background: #2c6cb0; }
+        .card { background: var(--white); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { color: var(--primary-blue); margin-bottom: 20px; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 2px solid var(--light-blue); }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .info-card { padding: 20px; border-radius: 8px; border: 1px solid var(--light-gray); }
+        .info-card h3 { color: var(--primary-blue); margin-bottom: 15px; }
+        .teacher-info { display: flex; align-items: center; margin-bottom: 15px; }
+        .teacher-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; }
+        .schedule-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .schedule-table th { background: var(--primary-blue); color: white; padding: 10px; text-align: left; }
+        .schedule-table td { padding: 10px; border-bottom: 1px solid var(--light-gray); }
+        .student-info { background: var(--white); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .info-item { margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .info-item strong { color: var(--primary-blue); }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .card { padding: 20px; }
+            .info-grid { grid-template-columns: 1fr; gap: 15px; }
+            .teacher-info { flex-direction: column; text-align: center; }
+            .teacher-avatar { margin-right: 0; margin-bottom: 10px; }
+            .schedule-table th, .schedule-table td { padding: 8px; font-size: 0.9rem; }
+            .student-info { padding: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 0.9rem; }
+            .back-link { padding: 8px 15px; font-size: 0.9rem; }
+            .section-title { font-size: 1.3rem; }
+            .info-card { padding: 15px; }
+            .teacher-avatar { width: 40px; height: 40px; }
+            .schedule-table th, .schedule-table td { padding: 6px; font-size: 0.8rem; }
+            .info-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZRP Zimuto Camp Primary School</h1>
+        <p>Class Information</p>
+    </div>
+
+    <div class="container">
+        <a href="{% url 'student_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        <div class="student-info">
+            <h3>Student Information</h3>
+            {% if student %}
+                <div class="info-item">
+                    <strong>Name:</strong>
+                    <span>{{ student.user.first_name }} {{ student.user.last_name }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Grade:</strong>
+                    <span>{{ student.grade.name }}</span>
+                </div>
+                {% if student.class_room %}
+                <div class="info-item">
+                    <strong>Class:</strong>
+                    <span>{{ student.class_room.name }}</span>
+                </div>
+                {% endif %}
+            {% else %}
+                <p>No student profile found.</p>
+            {% endif %}
+        </div>
+
+        <div class="info-grid">
+            <div class="card info-card">
+                <h3>Class Teacher</h3>
+                <div class="teacher-info">
+                    <div class="teacher-avatar">MJ</div>
+                    <div>
+                        <strong>Mr. Johnson</strong><br>
+                        <span style="color: var(--secondary-blue);">Mathematics Teacher</span><br>
+                        <small>johnson@school.com</small>
+                    </div>
+                </div>
+                <p>Main class teacher responsible for your overall progress and coordination with other subject teachers.</p>
+            </div>
+
+            <div class="card info-card">
+                <h3>Class Details</h3>
+                <p><strong>Class Size:</strong> 32 students</p>
+                <p><strong>Class Monitor:</strong> Sarah Williams</p>
+                <p><strong>Deputy Monitor:</strong> Michael Brown</p>
+                <p><strong>Classroom:</strong> Room 204</p>
+            </div>
+
+            <div class="card info-card">
+                <h3>Subject Teachers</h3>
+                <ul>
+                    <li><strong>English:</strong> Ms. Smith</li>
+                    <li><strong>Mathematics:</strong> Mr. Johnson</li>
+                    <li><strong>Science:</strong> Dr. Davis</li>
+                    <li><strong>Social Studies:</strong> Mrs. Wilson</li>
+                    <li><strong>Shona:</strong> Mr. Ndlovu</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Weekly Schedule</h2>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>8:00 - 9:00</td>
+                        <td>Mathematics</td>
+                        <td>English</td>
+                        <td>Science</td>
+                        <td>Mathematics</td>
+                        <td>Social Studies</td>
+                    </tr>
+                    <tr>
+                        <td>9:00 - 10:00</td>
+                        <td>English</td>
+                        <td>Mathematics</td>
+                        <td>English</td>
+                        <td>Science</td>
+                        <td>Shona</td>
+                    </tr>
+                    <tr>
+                        <td>10:00 - 11:00</td>
+                        <td>Science</td>
+                        <td>Science</td>
+                        <td>Mathematics</td>
+                        <td>English</td>
+                        <td>Mathematics</td>
+                    </tr>
+                    <tr>
+                        <td>11:00 - 12:00</td>
+                        <td>Social Studies</td>
+                        <td>Shona</td>
+                        <td>Social Studies</td>
+                        <td>Shona</td>
+                        <td>English</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-blue: #1a4b8c;
+            --secondary-blue: #2c6cb0;
+            --accent-blue: #4a90e2;
+            --light-blue: #e6f2ff;
+            --dark-blue: #0a2a53;
+            --gold: #d4af37;
+            --light-gold: #f7e8c4;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --text-dark: #333333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --sidebar-width: 250px;
+            --sidebar-collapsed: 70px;
+            --topbar-height: 70px;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            color: var(--text-dark);
+            line-height: 1.6;
+            background-color: var(--light-gray);
+            overflow-x: hidden;
+        }
+        
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, var(--dark-blue), var(--primary-blue));
+            color: var(--white);
+            transition: var(--transition);
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: var(--topbar-height);
+        }
+        
+        .school-logo {
+            height: 40px;
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed .school-logo {
+            opacity: 0;
+            width: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .menu-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            color: var(--light-gold);
+        }
+        
+        .menu-text {
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed .menu-text {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .menu-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-dropdown.open {
+            max-height: 300px;
+        }
+        
+        .dropdown-item {
+            padding: 10px 20px 10px 50px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Topbar Styles */
+        .topbar {
+            height: var(--topbar-height);
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: var(--sidebar-width);
+            z-index: 99;
+            transition: var(--transition);
+        }
+        
+        .sidebar.collapsed ~ .main-content .topbar {
+            left: var(--sidebar-collapsed);
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            cursor: pointer;
+            margin-right: 20px;
+            transition: var(--transition);
+        }
+        
+        .menu-toggle:hover {
+            color: var(--accent-blue);
+            transform: scale(1.1);
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .topbar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .topbar-item:hover {
+            background-color: var(--light-blue);
+        }
+        
+        .notification-badge {
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .zrp-logo {
+            height: 40px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+            padding-top: var(--topbar-height);
+        }
+        
+        .sidebar.collapsed ~ .main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
+        
+        .content-area {
+            padding: 30px;
+        }
+        
+        /* Dashboard Sections */
+        .dashboard-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .dashboard-section.active {
+            display: block;
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        
+        .welcome-banner h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .welcome-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-blue);
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            animation: fadeInUp 0.5s ease;
+            border-top: 4px solid var(--accent-blue);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card.gold {
+            border-top-color: var(--gold);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-blue);
+            font-size: 1.5rem;
+        }
+        
+        .card.gold .card-icon {
+            background-color: var(--light-gold);
+            color: var(--gold);
+        }
+        
+        .card-title {
+            color: var(--primary-blue);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .card-content {
+            color: var(--text-dark);
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-blue);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-blue);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: black;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .data-table th {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--light-blue);
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-blue);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--white);
+            cursor: pointer;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+        
+        /* Announcements */
+        .announcement {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--accent-blue);
+            animation: fadeInLeft 0.5s ease;
+        }
+        
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .announcement-title {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+        
+        .announcement-date {
+            color: var(--secondary-blue);
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .topbar {
+                left: 0;
+            }
+            
+            .cards-grid, .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="{% static 'images/cort.png' %}" alt="School Logo" class="school-logo">
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-section="dashboard">
+                    <div class="menu-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span class="menu-text">Dashboard</span>
+                </li>
+                
+                <li class="menu-item" data-section="teachers">
+                    <div class="menu-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <span class="menu-text">Teacher Management</span>
+                </li>
+                
+                <li class="menu-item" data-section="students">
+                    <div class="menu-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <span class="menu-text">Student Management</span>
+                </li>
+                
+                <li class="menu-item" data-section="classes">
+                    <div class="menu-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="menu-text">Class Management</span>
+                </li>
+                
+                <li class="menu-item">
+                    <a href="{% url 'fees:fee_management_dashboard' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                        <div class="menu-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <span class="menu-text">Fee Management</span>
+                    </a>
+                </li>
+                
+                <li class="menu-item" data-section="results">
+                    <div class="menu-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <span class="menu-text">Results Monitoring</span>
+                </li>
+                
+                <li class="menu-item" data-section="attendance">
+                    <div class="menu-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span class="menu-text">Attendance</span>
+                </li>
+                
+                <li class="menu-item" data-section="communication">
+                    <div class="menu-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <span class="menu-text">Communication</span>
+                </li>
+                
+                <li class="menu-item" data-section="reports">
+                    <div class="menu-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <span class="menu-text">Reports</span>
+                </li>
+                
+                <li class="menu-item" data-section="settings">
+                    <div class="menu-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <span class="menu-text">System Settings</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="page-title">Admin Dashboard</h2>
+                </div>
+                
+                <div class="topbar-right">
+                    <div class="topbar-item notification-item">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">7</span>
+                    </div>
+                    
+                    <div class="topbar-item user-profile">
+                        <div class="user-avatar">{{ admin.first_name.0 }}{{ admin.last_name.0 }}</div>
+                        <div class="user-details">
+                            <div class="user-name">{{ admin.first_name }} {{ admin.last_name }}</div>
+                            <div class="user-role">School Administrator</div>
+                        </div>
+                    </div>
+
+                    <div class="topbar-item">
+                        <a href="{% url 'logout' %}" style="color: var(--primary-blue); text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+
+                    <img src="{% static 'images/pol.jpg' %}" alt="ZRP Logo" class="zrp-logo">
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="dashboard-section active">
+                    <div class="welcome-banner">
+                        <h1>Welcome to School Administration, {{ admin.first_name }}</h1>
+                        <p>Manage teachers, students, classes, fees, and all school operations from one central dashboard.</p>
+                    </div>
+                    
+                    <h2 class="section-title">School Overview</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ total_students }}</div>
+                            <div class="stat-label">Total Students</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ total_teachers }}</div>
+                            <div class="stat-label">Teachers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ total_classes }}</div>
+                            <div class="stat-label">Classes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ total_grades }}</div>
+                            <div class="stat-label">Grades</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Active Users</div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="section-title">Quick Actions</h2>
+                    
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <h3 class="card-title">Add New Teacher</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Create a new teacher account and assign them to a class.</p>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary">Add Teacher</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <h3 class="card-title">Manage Students</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>View, edit, or promote students. Create student accounts if needed.</p>
+                                <div class="action-buttons">
+                                    <a href="{% url 'admin_manage_students' %}" class="btn btn-primary">View Students</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card gold">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <h3 class="card-title">Fee Management</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>View fee payments, outstanding balances, and generate receipts.</p>
+                                <div class="action-buttons">
+                                    <a href="{% url 'fees:fee_management_dashboard' %}" class="btn btn-primary" style="text-decoration: none; color: white;">View Fees</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-bullhorn"></i>
+                                </div>
+                                <h3 class="card-title">Send Announcement</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>Send important announcements to teachers, parents, or the whole school.</p>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary">Create Announcement</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="section-title">Recent Activity</h2>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">New Teacher Registered</h3>
+                            <span class="announcement-date">October 22, 2023</span>
+                        </div>
+                        <p>Mrs. Chido Dube has been added as a teacher for Grade 2A.</p>
+                    </div>
+                    
+                    <div class="announcement">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">Fee Payment Received</h3>
+                            <span class="announcement-date">October 21, 2023</span>
+                        </div>
+                        <p>25 parents made fee payments yesterday totaling $1,250.</p>
+                    </div>
+                </div>
+
+                <!-- Teacher Management Section -->
+                <div id="teachers" class="dashboard-section">
+                    <h2 class="section-title">Teacher Management</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Add New Teacher</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" placeholder="Enter teacher's full name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" placeholder="Enter email address">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" placeholder="Enter phone number">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Assigned Class</label>
+                                <select class="form-select">
+                                    <option>Select Class</option>
+                                    <option>Grade 1A</option>
+                                    <option>Grade 1B</option>
+                                    <option>Grade 2A</option>
+                                    <option>Grade 2B</option>
+                                    <option>Grade 3A</option>
+                                    <option>Grade 3B</option>
+                                    <option>Grade 4A</option>
+                                    <option>Grade 4B</option>
+                                    <option>Grade 5A</option>
+                                    <option>Grade 5B</option>
+                                    <option>Grade 6A</option>
+                                    <option>Grade 6B</option>
+                                    <option>Grade 7A</option>
+                                    <option>Grade 7B</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn btn-primary">Create Teacher Account</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">All Teachers ({{ teachers|length }})</h3>
+                        </div>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for teacher in teachers %}
+                                    <tr>
+                                        <td>{{ teacher.first_name }} {{ teacher.last_name }}</td>
+                                        <td>{{ teacher.email }}</td>
+                                        <td><span style="color: var(--success);">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-secondary">Edit</button>
+                                            <button class="btn btn-primary">Reset Password</button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4">No teachers found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Management Section -->
+                <div id="students" class="dashboard-section">
+                    <h2 class="section-title">Student Management</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Students ({{ recent_students|length }})</h3>
+                        </div>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Grade & Class</th>
+                                        <th>Email</th>
+                                        <th>Registration Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in recent_students %}
+                                    <tr>
+                                        <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                                        <td>{{ student.grade.name }}{% if student.class_room %} {{ student.class_room.name }}{% endif %}</td>
+                                        <td>{{ student.user.email }}</td>
+                                        <td>{{ student.user.date_joined|date:"M d, Y" }}</td>
+                                        <td>
+                                            <button class="btn btn-secondary">Edit</button>
+                                            <button class="btn btn-primary">View</button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5">No students found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Promote Students</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>At the end of the academic year, you can promote all students to the next grade.</p>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary">Promote All Students</button>
+                                <button class="btn btn-secondary">Graduate Grade 7</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class Management Section -->
+                <div id="classes" class="dashboard-section">
+                    <h2 class="section-title">Class & Grade Management</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Create New Class</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Grade</label>
+                                <select class="form-select">
+                                    <option>ECD A</option>
+                                    <option>ECD B</option>
+                                    <option>Grade 1</option>
+                                    <option>Grade 2</option>
+                                    <option>Grade 3</option>
+                                    <option>Grade 4</option>
+                                    <option>Grade 5</option>
+                                    <option>Grade 6</option>
+                                    <option>Grade 7</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Class Name</label>
+                                <input type="text" class="form-control" placeholder="e.g., A, B, C">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Maximum Students</label>
+                                <input type="number" class="form-control" value="35">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Assign Teacher</label>
+                                <select class="form-select">
+                                    <option>Select Teacher</option>
+                                    <option>Mrs. Anna Moyo</option>
+                                    <option>Mr. Tinashe Chiweshe</option>
+                                    <option>Mrs. Chido Dube</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn btn-primary">Create Class</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fee Management Section -->
+                <div id="fees" class="dashboard-section">
+                    <h2 class="section-title">Fee Management</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Financial Overview</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-value">$15,660</div>
+                                    <div class="stat-label">Total Expected</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">$12,450</div>
+                                    <div class="stat-label">Total Collected</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">$3,210</div>
+                                    <div class="stat-label">Outstanding</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">79.5%</div>
+                                    <div class="stat-label">Collection Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Payments</h3>
+                        </div>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Grade</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Date</th>
+                                        <th>Receipt</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tafadzwa Moyo</td>
+                                        <td>Grade 6B</td>
+                                        <td>$250</td>
+                                        <td>EcoCash</td>
+                                        <td>Oct 20, 2023</td>
+                                        <td><button class="btn btn-secondary">Print</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rudo Chiweshe</td>
+                                        <td>Grade 5A</td>
+                                        <td>$150</td>
+                                        <td>Bank Transfer</td>
+                                        <td>Oct 19, 2023</td>
+                                        <td><button class="btn btn-secondary">Print</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Takudzwa Ndlovu</td>
+                                        <td>Grade 4B</td>
+                                        <td>$200</td>
+                                        <td>Cash</td>
+                                        <td>Oct 18, 2023</td>
+                                        <td><button class="btn btn-secondary">Print</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add other sections similarly -->
+                <div id="results" class="dashboard-section">
+                    <h2 class="section-title">Results Monitoring</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Monitor all results uploaded by teachers, check for accuracy, and lock results at term end.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="attendance" class="dashboard-section">
+                    <h2 class="section-title">Attendance Monitoring</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>View daily and monthly attendance reports for the entire school.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="communication" class="dashboard-section">
+                    <h2 class="section-title">Communication</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Send announcements to teachers, parents, or specific classes. Moderate communication across the system.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="reports" class="dashboard-section">
+                    <h2 class="section-title">Reports</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Generate financial, academic, and attendance reports for the school.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="settings" class="dashboard-section">
+                    <h2 class="section-title">System Settings</h2>
+                    <div class="card">
+                        <div class="card-content">
+                            <p>Configure school information, term dates, payment methods, and system preferences.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const sections = document.querySelectorAll('.dashboard-section');
+            
+            // Toggle sidebar collapse/expand
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                
+                // Update hamburger icon
+                if (sidebar.classList.contains('collapsed')) {
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    menuToggle.innerHTML = '<i class="fas fa-times"></i>';
+                }
+            });
+            
+            // Menu navigation
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetSection = this.getAttribute('data-section');
+                    
+                    // Update active menu item
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetSection) {
+                            section.classList.add('active');
+                        }
+                    });
+                    
+                    // Update page title
+                    document.querySelector('.page-title').textContent = this.querySelector('.menu-text').textContent;
+                    
+                    // Auto-collapse sidebar on mobile after selection
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('mobile-open');
+                    }
+                });
+            });
+            
+            // Mobile menu handling
+            function handleMobileMenu() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    sidebar.classList.remove('mobile-open');
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+            }
+            
+            // Initial call
+            handleMobileMenu();
+            
+            // Update on resize
+            window.addEventListener('resize', handleMobileMenu);
+        });
+    </script>
+</body>
+</html>

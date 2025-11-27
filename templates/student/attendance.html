@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Record - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary-blue: #1a4b8c; --accent-blue: #4a90e2; --white: #ffffff; --light-gray: #f5f5f5; --text-dark: #333333; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
+        body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; }
+        .header { background-color: var(--primary-blue); color: var(--white); padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background: #2c6cb0; }
+        .card { background: var(--white); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { color: var(--primary-blue); margin-bottom: 20px; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 2px solid var(--light-blue); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { text-align: center; padding: 20px; border-radius: 10px; color: white; }
+        .stat-card.present { background: var(--success); }
+        .stat-card.absent { background: var(--danger); }
+        .stat-card.total { background: var(--primary-blue); }
+        .stat-number { font-size: 2rem; font-weight: bold; margin-bottom: 5px; }
+        .stat-label { font-size: 1rem; opacity: 0.9; }
+        .calendar { background: var(--white); border-radius: 10px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .calendar-title { color: var(--primary-blue); font-size: 1.3rem; }
+        .calendar-nav { display: flex; gap: 10px; }
+        .calendar-btn { padding: 8px 15px; background: var(--accent-blue); color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .calendar-btn:hover { background: #2c6cb0; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .calendar-day { padding: 10px; text-align: center; border-radius: 5px; }
+        .calendar-day.header { background: var(--primary-blue); color: white; font-weight: bold; }
+        .calendar-day.present { background: var(--success); color: white; }
+        .calendar-day.absent { background: var(--danger); color: white; }
+        .calendar-day.future { background: var(--light-gray); color: var(--text-dark); }
+        .student-info { background: var(--white); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .info-item { margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .info-item strong { color: var(--primary-blue); }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .card { padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; gap: 15px; }
+            .stat-number { font-size: 1.8rem; }
+            .stat-label { font-size: 0.9rem; }
+            .calendar { padding: 15px; }
+            .calendar-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .calendar-nav { align-self: flex-end; }
+            .calendar-grid { gap: 2px; }
+            .calendar-day { padding: 8px; font-size: 0.9rem; }
+            .student-info { padding: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 0.9rem; }
+            .back-link { padding: 8px 15px; font-size: 0.9rem; }
+            .section-title { font-size: 1.3rem; }
+            .stat-number { font-size: 1.5rem; }
+            .stat-label { font-size: 0.8rem; }
+            .calendar-title { font-size: 1.1rem; }
+            .calendar-btn { padding: 6px 12px; font-size: 0.9rem; }
+            .calendar-day { padding: 6px; font-size: 0.8rem; }
+            .info-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZRP Zimuto Camp Primary School</h1>
+        <p>Attendance Record</p>
+    </div>
+
+    <div class="container">
+        <a href="{% url 'student_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        <div class="student-info">
+            <h3>Student Information</h3>
+            {% if student %}
+                <div class="info-item">
+                    <strong>Name:</strong>
+                    <span>{{ student.user.first_name }} {{ student.user.last_name }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Grade:</strong>
+                    <span>{{ student.grade.name }}</span>
+                </div>
+                {% if student.class_room %}
+                <div class="info-item">
+                    <strong>Class:</strong>
+                    <span>{{ student.class_room.name }}</span>
+                </div>
+                {% endif %}
+            {% else %}
+                <p>No student profile found.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Attendance Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card present">
+                    <div class="stat-number">45</div>
+                    <div class="stat-label">Days Present</div>
+                </div>
+                <div class="stat-card absent">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Days Absent</div>
+                </div>
+                <div class="stat-card total">
+                    <div class="stat-number">95.7%</div>
+                    <div class="stat-label">Attendance Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="calendar">
+            <div class="calendar-header">
+                <h3 class="calendar-title">October 2023 Attendance</h3>
+                <div class="calendar-nav">
+                    <button class="calendar-btn">< Previous</button>
+                    <button class="calendar-btn">Next ></button>
+                </div>
+            </div>
+            <div class="calendar-grid">
+                <div class="calendar-day header">Mon</div>
+                <div class="calendar-day header">Tue</div>
+                <div class="calendar-day header">Wed</div>
+                <div class="calendar-day header">Thu</div>
+                <div class="calendar-day header">Fri</div>
+                <div class="calendar-day header">Sat</div>
+                <div class="calendar-day header">Sun</div>
+                <!-- Sample attendance data -->
+                <div class="calendar-day present">1</div>
+                <div class="calendar-day present">2</div>
+                <div class="calendar-day present">3</div>
+                <div class="calendar-day present">4</div>
+                <div class="calendar-day present">5</div>
+                <div class="calendar-day future">6</div>
+                <div class="calendar-day future">7</div>
+                <div class="calendar-day present">8</div>
+                <div class="calendar-day present">9</div>
+                <div class="calendar-day absent">10</div>
+                <div class="calendar-day present">11</div>
+                <div class="calendar-day present">12</div>
+                <div class="calendar-day future">13</div>
+                <div class="calendar-day future">14</div>
+                <div class="calendar-day present">15</div>
+                <div class="calendar-day present">16</div>
+                <div class="calendar-day present">17</div>
+                <div class="calendar-day present">18</div>
+                <div class="calendar-day present">19</div>
+                <div class="calendar-day future">20</div>
+                <div class="calendar-day future">21</div>
+                <div class="calendar-day present">22</div>
+                <div class="calendar-day present">23</div>
+                <div class="calendar-day present">24</div>
+                <div class="calendar-day present">25</div>
+                <div class="calendar-day absent">26</div>
+                <div class="calendar-day future">27</div>
+                <div class="calendar-day future">28</div>
+                <div class="calendar-day present">29</div>
+                <div class="calendar-day present">30</div>
+                <div class="calendar-day present">31</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

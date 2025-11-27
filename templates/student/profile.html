@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile & Settings - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary-blue: #1a4b8c; --accent-blue: #4a90e2; --white: #ffffff; --light-gray: #f5f5f5; --text-dark: #333333; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
+        body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; }
+        .header { background-color: var(--primary-blue); color: var(--white); padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background: #2c6cb0; }
+        .card { background: var(--white); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { color: var(--primary-blue); margin-bottom: 20px; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 2px solid var(--light-blue); }
+        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .profile-section { padding: 20px; border: 1px solid var(--light-gray); border-radius: 8px; }
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary-blue); }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--light-gray); border-radius: 5px; }
+        .btn { display: inline-block; padding: 12px 25px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #2c6cb0; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #218838; }
+        .student-info { background: var(--white); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .info-item { margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .info-item strong { color: var(--primary-blue); }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .card { padding: 20px; }
+            .profile-grid { grid-template-columns: 1fr; gap: 20px; }
+            .form-group { margin-bottom: 15px; }
+            .btn { padding: 10px 20px; font-size: 0.9rem; }
+            .student-info { padding: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 0.9rem; }
+            .back-link { padding: 8px 15px; font-size: 0.9rem; }
+            .section-title { font-size: 1.3rem; }
+            .profile-section { padding: 15px; }
+            .form-control { padding: 10px; font-size: 0.9rem; }
+            .btn { padding: 8px 15px; font-size: 0.8rem; }
+            .info-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZRP Zimuto Camp Primary School</h1>
+        <p>Profile & Settings</p>
+    </div>
+
+    <div class="container">
+        <a href="{% url 'student_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        <div class="student-info">
+            <h3>Current Profile Information</h3>
+            {% if student %}
+                <div class="info-item">
+                    <strong>Full Name:</strong>
+                    <span>{{ student.user.first_name }} {{ student.user.last_name }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Email:</strong>
+                    <span>{{ student.user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Grade:</strong>
+                    <span>{{ student.grade.name }}</span>
+                </div>
+                {% if student.class_room %}
+                <div class="info-item">
+                    <strong>Class:</strong>
+                    <span>{{ student.class_room.name }}</span>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <strong>Account Created:</strong>
+                    <span>{{ student.user.date_joined|date:"M d, Y" }}</span>
+                </div>
+            {% else %}
+                <p>No student profile found.</p>
+            {% endif %}
+        </div>
+
+        <div class="profile-grid">
+            <div class="card profile-section">
+                <h2 class="section-title">Update Personal Information</h2>
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" value="{{ student.user.first_name }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" value="{{ student.user.last_name }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="{{ student.user.email }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Information</button>
+                </form>
+            </div>
+
+            <div class="card profile-section">
+                <h2 class="section-title">Change Password</h2>
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-success">Change Password</button>
+                </form>
+            </div>
+
+            <div class="card profile-section">
+                <h2 class="section-title">Account Settings</h2>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" checked> Email notifications for homework
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" checked> Email notifications for results
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" checked> Email notifications for announcements
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </div>
+
+            <div class="card profile-section">
+                <h2 class="section-title">Account Actions</h2>
+                <p>Need help with your account? Contact the school administration.</p>
+                <br>
+                <button class="btn" style="background: var(--danger); color: white;">Request Account Deletion</button>
+                <p style="font-size: 0.9rem; color: var(--text-dark); margin-top: 10px;">
+                    <strong>Note:</strong> Account deletion requests must be approved by school administration.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

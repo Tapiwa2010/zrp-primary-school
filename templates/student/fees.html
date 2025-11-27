@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+{% load math_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Management - ZRP Zimuto Camp Primary School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary-blue: #1a4b8c; --accent-blue: #4a90e2; --white: #ffffff; --light-gray: #f5f5f5; --text-dark: #333333; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
+        body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; }
+        .header { background-color: var(--primary-blue); color: var(--white); padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background: #2c6cb0; }
+        .top-nav { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .nav-link { color: var(--primary-blue); text-decoration: none; font-weight: 500; padding: 8px 12px; border-radius: 5px; transition: all 0.3s ease; border: 1px solid transparent; }
+        .nav-link:hover { background-color: var(--light-blue); color: var(--secondary-blue); }
+        .nav-link.active { background-color: var(--light-blue); color: var(--secondary-blue); border-color: var(--accent-blue); }
+        .card { background: var(--white); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { color: var(--primary-blue); margin-bottom: 20px; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 2px solid var(--light-blue); }
+        .fee-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .fee-card { text-align: center; padding: 20px; border-radius: 10px; color: white; }
+        .fee-card.total { background: var(--primary-blue); }
+        .fee-card.paid { background: var(--success); }
+        .fee-card.balance { background: var(--danger); }
+        .fee-amount { font-size: 2rem; font-weight: bold; margin-bottom: 5px; }
+        .fee-label { font-size: 1rem; opacity: 0.9; }
+        .progress-bar { height: 20px; background: var(--light-gray); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+        .progress { height: 100%; background: linear-gradient(90deg, var(--success), var(--warning)); border-radius: 10px; transition: width 1s ease; }
+        .pay-btn { display: inline-block; padding: 15px 30px; background: var(--accent-blue); color: white; text-decoration: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; margin: 20px 0; }
+        .pay-btn:hover { background: #2c6cb0; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .payment-history { margin-top: 30px; }
+        .history-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .history-table th { background: var(--primary-blue); color: white; padding: 15px; text-align: left; }
+        .history-table td { padding: 15px; border-bottom: 1px solid var(--light-gray); }
+        .history-table tr:last-child td { border-bottom: none; }
+        .history-table tr:hover { background: var(--light-blue); }
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        .student-info { background: var(--white); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .info-item { margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .info-item strong { color: var(--primary-blue); }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .card { padding: 20px; }
+            .top-nav { gap: 10px; justify-content: center; }
+            .nav-link { padding: 6px 10px; font-size: 0.9rem; }
+            .fee-summary { grid-template-columns: 1fr; gap: 15px; }
+            .fee-amount { font-size: 1.8rem; }
+            .fee-label { font-size: 0.9rem; }
+            .progress-bar { height: 18px; }
+            .pay-btn { padding: 12px 25px; font-size: 1rem; }
+            .history-table th, .history-table td { padding: 10px; font-size: 0.9rem; }
+            .student-info { padding: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 0.9rem; }
+            .back-link { padding: 8px 15px; font-size: 0.9rem; }
+            .top-nav { gap: 5px; }
+            .nav-link { padding: 4px 6px; font-size: 0.7rem; }
+            .section-title { font-size: 1.3rem; }
+            .fee-amount { font-size: 1.5rem; }
+            .fee-label { font-size: 0.8rem; }
+            .progress-bar { height: 15px; }
+            .pay-btn { padding: 10px 20px; font-size: 0.9rem; }
+            .info-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZRP Zimuto Camp Primary School</h1>
+        <p>Fee Management</p>
+    </div>
+
+    <div class="container">
+        <a href="{% url 'student_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        <nav class="top-nav">
+            <a href="{% url 'student_academics' %}" class="nav-link">Academic Results</a>
+            <a href="{% url 'student_homework' %}" class="nav-link">Homework</a>
+            <a href="{% url 'student_attendance' %}" class="nav-link">Attendance</a>
+            <a href="{% url 'fees:student_fee_dashboard' %}" class="nav-link active">Fee Management</a>
+            <a href="{% url 'student_communication' %}" class="nav-link">Communication</a>
+            <a href="{% url 'student_class_info' %}" class="nav-link">Class Info</a>
+            <a href="{% url 'student_profile' %}" class="nav-link">Profile</a>
+        </nav>
+
+        <div class="student-info">
+            <h3>Student Information</h3>
+            {% if student %}
+                <div class="info-item">
+                    <strong>Name:</strong>
+                    <span>{{ student.user.first_name }} {{ student.user.last_name }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Grade:</strong>
+                    <span>{{ student.grade.name }}</span>
+                </div>
+                {% if student.class_room %}
+                <div class="info-item">
+                    <strong>Class:</strong>
+                    <span>{{ student.class_room.name }}</span>
+                </div>
+                {% endif %}
+            {% else %}
+                <p>No student profile found.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Fee Summary - {{ current_term.name }} {{ current_year.name }}</h2>
+            {% if ledger %}
+            <div class="fee-summary">
+                <div class="fee-card total">
+                    <div class="fee-amount">${{ ledger.total_required|floatformat:2 }}</div>
+                    <div class="fee-label">Total Required</div>
+                </div>
+                <div class="fee-card paid">
+                    <div class="fee-amount">${{ ledger.payments_made|floatformat:2 }}</div>
+                    <div class="fee-label">Amount Paid</div>
+                </div>
+                <div class="fee-card balance">
+                    <div class="fee-amount">${{ ledger.outstanding_balance|floatformat:2 }}</div>
+                    <div class="fee-label">Outstanding Balance</div>
+                </div>
+            </div>
+
+            {% if ledger.total_required > 0 %}
+            <div class="progress-bar">
+                <div class="progress" style="width: {{ ledger.payments_made|div:ledger.total_required|mul:100 }}%"></div>
+            </div>
+            <p style="text-align: center; margin-bottom: 20px;">
+                {{ ledger.payments_made|div:ledger.total_required|mul:100|floatformat:1 }}% of fees paid
+            </p>
+            {% endif %}
+
+            {% if ledger.outstanding_balance > 0 %}
+            <div style="text-align: center;">
+                <a href="#" class="pay-btn"><i class="fas fa-credit-card"></i> Pay Outstanding Balance</a>
+            </div>
+            {% endif %}
+            {% else %}
+            <p>No fee information available for the current term.</p>
+            {% endif %}
+        </div>
+
+        {% if fee_structure %}
+        <div class="card">
+            <h2 class="section-title">Fee Breakdown</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                {% if fee_structure.tuition_fee > 0 %}
+                <div style="padding: 15px; background: var(--light-blue); border-radius: 8px;">
+                    <strong>Tuition Fee:</strong> ${{ fee_structure.tuition_fee|floatformat:2 }}
+                </div>
+                {% endif %}
+                {% if fee_structure.exam_fee > 0 %}
+                <div style="padding: 15px; background: var(--light-blue); border-radius: 8px;">
+                    <strong>Exam Fee:</strong> ${{ fee_structure.exam_fee|floatformat:2 }}
+                </div>
+                {% endif %}
+                {% if fee_structure.development_levy > 0 %}
+                <div style="padding: 15px; background: var(--light-blue); border-radius: 8px;">
+                    <strong>Development Levy:</strong> ${{ fee_structure.development_levy|floatformat:2 }}
+                </div>
+                {% endif %}
+                {% if fee_structure.sports_levy > 0 %}
+                <div style="padding: 15px; background: var(--light-blue); border-radius: 8px;">
+                    <strong>Sports Levy:</strong> ${{ fee_structure.sports_levy|floatformat:2 }}
+                </div>
+                {% endif %}
+                {% if fee_structure.library_fee > 0 %}
+                <div style="padding: 15px; background: var(--light-blue); border-radius: 8px;">
+                    <strong>Library Fee:</strong> ${{ fee_structure.library_fee|floatformat:2 }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if payment_plan %}
+        <div class="card">
+            <h2 class="section-title">Payment Plan</h2>
+            <div style="background: var(--light-blue); padding: 20px; border-radius: 8px;">
+                <h4>Active Payment Plan</h4>
+                <p><strong>Total Amount:</strong> ${{ payment_plan.total_amount|floatformat:2 }}</p>
+                <p><strong>Installments:</strong> {{ payment_plan.number_of_installments }}</p>
+                <p><strong>Amount per Installment:</strong> ${{ payment_plan.installment_amount|floatformat:2 }}</p>
+                <p><strong>Status:</strong> {{ payment_plan.get_status_display }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card payment-history">
+            <h2 class="section-title">Recent Payments</h2>
+            {% if recent_payments %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in recent_payments %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                        <td>${{ payment.amount|floatformat:2 }}</td>
+                        <td>{{ payment.payment_method.get_name_display }}</td>
+                        <td>
+                            <span class="status {% if payment.status == 'verified' %}success{% elif payment.status == 'pending' %}pending{% else %}pending{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if payment.receipt %}
+                            <a href="{% url 'download_receipt' payment.receipt.id %}" style="color: var(--accent-blue);" target="_blank">Download</a>
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{% url 'student_payment_history' %}" class="pay-btn" style="background: var(--secondary-blue);"><i class="fas fa-history"></i> View Full History</a>
+            </div>
+            {% else %}
+            <p>No payment history available.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
