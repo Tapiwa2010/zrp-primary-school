@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-)*ulx642hv%#)%26p_zc$rg6k@83yy@tct*8)+d)z35^1@*&ie
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'zrpzimutocampschool.onrender.com',
+    'zrpzimutoprimaryschool.onrender.com',
     'localhost',
     '127.0.0.1'
 ]
