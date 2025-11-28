@@ -25,10 +25,11 @@ SECRET_KEY = 'django-insecure-)*ulx642hv%#)%26p_zc$rg6k@83yy@tct*8)+d)z35^1@*&ie
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
-
-# Application definition
+ALLOWED_HOSTS = [
+    'zrpzimutocampschool.onrender.com',
+    'localhost',
+    '127.0.0.1'
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
